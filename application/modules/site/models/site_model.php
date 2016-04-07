@@ -465,10 +465,31 @@ class Site_model extends CI_Model
 				// change the database connection
 				$database_file = ''.base_url().''.$folder_name.'\application/database.php';
 
-
-				file_put_contents($database_file,str_replace("$db['default']['username'] = 'root';","$db['default']['username'] = 'omniscok_".$company_user."';",file_get_contents($database_file)));
-				file_put_contents($database_file,str_replace("$db['default']['password'] = '';","$db['default']['password'] = 'r6r5bb!!';",file_get_contents($database_file)));
-				file_put_contents($database_file,str_replace("$db['default']['database'] = '';","$db['default']['database'] = 'omniscok_".$folder_name."';",file_get_contents($database_file)));
+				file_put_contents(
+					$database_file,
+					str_replace(
+						"\$db['default']['username'] = 'root';",
+						"\$db['default']['username'] = 'omniscok_".$company_user."';",
+						file_get_contents($database_file)
+					)
+				);
+				
+				file_put_contents(
+					$database_file,
+					str_replace(
+						"\$db['default']['password'] = '';",
+						"\$db['default']['password'] = 'r6r5bb!!';",
+						file_get_contents($database_file)
+					)
+				);
+				file_put_contents(
+					$database_file,
+					str_replace(
+						"\$db['default']['database'] = '';",
+						"\$db['default']['database'] = 'omniscok_".$folder_name."';",
+						file_get_contents($database_file)
+					)
+				);
 
 				// accessing files in cpanel 
 

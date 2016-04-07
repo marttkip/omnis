@@ -140,11 +140,11 @@ class xmlapi
     // output that should be given by the xml-api
     private $output		=	'simplexml';
     // literal strings hash or password
-    private $auth_type 	= null;
+    private $auth_type 	= NULL;
     //  the actual password or hash
-    private $auth 			= null;
+    private $auth 			= NULL;
     // username to authenticate as
-    private $user				= null;
+    private $user				= NULL;
     // The HTTP Client to use
     private $http_client		= 'curl';
     /**
@@ -157,7 +157,7 @@ class xmlapi
     * @param string $password The password to authenticate with
     * @return Xml_Api object
     */
-    public function __construct($host = null, $user = null, $password = null )
+    public function __construct($host = '127.0.0.1', $user = NULL, $password = NULL )
     {
         // Check if debugging must be enabled
         if ( (defined('XMLAPI_DEBUG')) && (XMLAPI_DEBUG == '1') ) {
@@ -193,10 +193,10 @@ class xmlapi
                 error_log('warning: XMLAPI_USER set but neither XMLAPI_HASH or XMLAPI_PASS have not been defined');
             }
         }
-        if ( ( $user != null ) && ( strlen( $user ) < 9 ) ) {
+        if ( ( $user != NULL ) && ( strlen( $user ) < 9 ) ) {
             $this->user = $user;
         }
-        if ($password != null) {
+        if ($password != NULL) {
             $this->set_password($password);
         }
         /**
@@ -205,7 +205,7 @@ class xmlapi
         * $host/XMLAPI_HOST should always be equal to either the IP of the server or it's hostname
         */
         // Set the host, error if not defined
-        if ($host == null) {
+        if ($host == NULL) {
             if ( (defined('XMLAPI_HOST')) && (strlen(XMLAPI_HOST) > 0) ) {
                 $this->host = XMLAPI_HOST;
             } else {
@@ -573,10 +573,10 @@ class xmlapi
         if (!$function) {
             throw new Exception('xmlapi_query() requires a function to be passed to it');
         }
-        if ($this->user == null) {
+        if ($this->user == NULL) {
             throw new Exception('no user has been set');
         }
-        if ($this->auth ==null) {
+        if ($this->auth ==NULL) {
             throw new Exception('no authentication information has been set');
         }
         // Build the query:
@@ -632,7 +632,7 @@ class xmlapi
         }
         // perform simplexml transformation (array relies on this)
         if ( ($this->output == 'simplexml') || $this->output == 'array') {
-            $response = simplexml_load_string($response, null, LIBXML_NOERROR | LIBXML_NOWARNING);
+            $response = simplexml_load_string($response, NULL, LIBXML_NOERROR | LIBXML_NOWARNING);
             if (!$response) {
                     error_log("Some error message here");
                     return;
@@ -698,7 +698,7 @@ class xmlapi
     *
     * This function will convert simplexml to associative arrays.
     */
-    private function unserialize_xml($input, $callback = null, $recurse = false)
+    private function unserialize_xml($input, $callback = NULL, $recurse = false)
     {
         // Get input, loading an xml string with simplexml if its the top level of recursion
         $data = ( (!$recurse) && is_string($input) ) ? simplexml_load_string($input) : $input;
@@ -898,7 +898,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/ListAccounts XML API Call documentation
     */
-    public function listaccts($searchtype = null, $search = null)
+    public function listaccts($searchtype = NULL, $search = NULL)
     {
         if ($search) {
             return $this->xmlapi_query('listaccts', array('searchtype' => $searchtype, 'search' => $search ));
@@ -983,7 +983,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SuspendAccount XML API Call documentation
     */
-    public function suspendacct($username, $reason = null)
+    public function suspendacct($username, $reason = NULL)
     {
         if (!isset($username)) {
             error_log("suspendacct requires that an username is passed to it");
@@ -1103,17 +1103,17 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SetSiteIp XML API Call documentation
     */
-    public function setsiteip ( $ip, $user = null, $domain = null )
+    public function setsiteip ( $ip, $user = NULL, $domain = NULL )
     {
         if ( !isset($ip) ) {
             error_log("setsiteip requires that ip is passed to it");
             return false;
         }
-        if ($user == null && $domain == null) {
+        if ($user == NULL && $domain == NULL) {
             error_log("setsiteip requires that either domain or user is passed to it");
             return false;
         }
-        if ($user == null) {
+        if ($user == NULL) {
             return $this->xmlapi_query( "setsiteip", array( "ip" => $ip, "domain" => $domain ) );
         } else {
             return $this->xmlapi_query( "setsiteip", array( "ip" => $ip, "user" => $user ) );
@@ -1514,14 +1514,14 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SetResellerIps XML API Call documentation
     */
-    public function setresellerips($user, $ip = null)
+    public function setresellerips($user, $ip = NULL)
     {
         if (!isset($user) ) {
             error_log("setresellerips requires that a username is passed to it");
             return false;
         }
         $params = array("user" => $user);
-        if ($ip != null) {
+        if ($ip != NULL) {
             $params['ip'] = $ip;
         }
         return $this->xmlapi_query('setresellerips',$params);
@@ -1577,7 +1577,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SetResellerPkgLimit XML API Call documentation
     */
-    public function setresellerpackagelimits($user, $no_limit, $package = null, $allowed = null, $number = null)
+    public function setresellerpackagelimits($user, $no_limit, $package = NULL, $allowed = NULL, $number = NULL)
     {
         if (!isset($user) || !isset($no_limit) ) {
             error_log("setresellerpackagelimits requires that a username and no_limit are passed to it by default");
@@ -1586,7 +1586,7 @@ class xmlapi
         if ($no_limit) {
             return $this->xmlapi_query("setresellerpackagelimits", array( 'user' => $user, "no_limit" => '1') );
         } else {
-            if ( is_null($package) || is_null($allowed) ) {
+            if ( is_NULL($package) || is_NULL($allowed) ) {
                 error_log('setresellerpackagelimits requires that package and allowed are passed to it if no_limit eq 0');
                 return false;
             }
@@ -1600,7 +1600,7 @@ class xmlapi
             } else {
                 $params['allowed'] = 0;
             }
-            if ( !is_null($number) ) {
+            if ( !is_NULL($number) ) {
                 $params['number'] = $number;
             }
             return $this->xmlapi_query('setresellerpackagelimits', $params);
@@ -1615,7 +1615,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SuspendReseller XML API Call documentation
     */
-    public function suspendreseller($reseller, $reason = null)
+    public function suspendreseller($reseller, $reason = NULL)
     {
         if (!isset($reseller) ) {
             error_log("suspendreseller requires that the reseller's username is passed to it");
@@ -1669,7 +1669,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SetResellerNameservers XML API Call documentation
     */
-    public function setresellernameservers($user, $nameservers = null)
+    public function setresellernameservers($user, $nameservers = NULL)
     {
         if (!isset($user)) {
             error_log("setresellernameservers requires that a username is passed to it");
@@ -1776,7 +1776,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/DeleteIPAddress XML API Call documentation
     */
-    public function delip($ip, $ethernetdev = null, $skipifshutdown = false)
+    public function delip($ip, $ethernetdev = NULL, $skipifshutdown = false)
     {
         $args = array();
         if (!isset($ip)) {
@@ -1828,7 +1828,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/SetResolvers XML API Call documentation
     */
-    public function setresolvers($nameserver1, $nameserver2 = null, $nameserver3 = null)
+    public function setresolvers($nameserver1, $nameserver2 = NULL, $nameserver3 = NULL)
     {
         $args = array();
         if (!isset($nameserver1)) {
@@ -1854,7 +1854,7 @@ class xmlapi
     * @return mixed
     * @link http://docs.cpanel.net/twiki/bin/view/AllDocumentation/AutomationIntegration/ShowBw XML API Call documentation
     */
-    public function showbw($args = null)
+    public function showbw($args = NULL)
     {
         if (is_array($args)) {
             return $this->xmlapi_query('showbw', $args);
@@ -2089,7 +2089,7 @@ class xmlapi
         return $this->api2_query($username, 'Ftp', 'listftp');
     }
     // This API function displays a list of all parked domains for a specific user.
-    public function listparkeddomains($username, $domain = null)
+    public function listparkeddomains($username, $domain = NULL)
     {
         $args = array();
         if (!isset($username)) {
@@ -2103,7 +2103,7 @@ class xmlapi
         return $this->api2_query($username, 'Park', 'listparkeddomains');
     }
     // This API function displays a list of all addon domains for a specific user.
-    public function listaddondomains($username, $domain = null)
+    public function listaddondomains($username, $domain = NULL)
     {
         $args = array();
         if (!isset($username)) {
@@ -2117,7 +2117,7 @@ class xmlapi
         return $this->api2_query($username, 'Park', 'listaddondomains');
     }
     // This API function displays a list of all selected stats for a specific user.
-    public function stat($username, $args = null)
+    public function stat($username, $args = NULL)
     {
         if ( (!isset($username)) || (!isset($args)) ) {
             error_log("stat requires that a username and options are passed to it");
