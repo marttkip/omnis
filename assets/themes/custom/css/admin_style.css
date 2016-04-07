@@ -1,0 +1,22 @@
+@font-face {
+    font-family: "Century Gothic", sans-serif;
+	src: url('../../../fonts/1105886371.eot'); /* IE9 Compat Modes */
+	src: url('../../../fonts/1105886371.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+	     url('../../../fonts/1105886371.woff') format('woff'), /* Modern Browsers */
+	     url('../../../fonts/1105886371.ttf')  format('truetype'), /* Safari, Android, iOS */
+	     url('../../../fonts/1105886371.svg') format('svg'); /* Legacy iOS */
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	@font-face {
+		font-family: "Century Gothic", sans-serif;
+		src: url('../../../fonts/1105886371.svg') format('svg');
+	}
+}
+
+body {font-family: 'Century Gothic', sans-serif; font-size:1.5em;}
+
+/* HEADERS */
+h1, h2, h3, h4, h5, h6{color:#5CA0D1; text-transform:capitalize; font-weight:bold;}
+h1{font-size:2em;}
+h2{font-size:1.5em;}
+.navbar-brand h2{margin:0; color:#e7302a;}

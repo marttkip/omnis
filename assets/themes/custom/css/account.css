@@ -1,0 +1,80 @@
+/* Backgrounds */
+.background-brown{background:url(../../../images/old_map.png);}
+.boxed{margin-top:20px;}
+
+.classroom-slide {height: 450px; width: 100%;}
+.sidebar { width: 160px;}
+.mainbar { margin-left: 160px;}
+.grade6{background-color:#e74c3c;}
+.navbar.grade6_border{border-bottom: 4px solid #c0392b;}
+
+.grade7{background-color:#2980b9;}
+.navbar.grade7_border{border-bottom: 4px solid #1d6391;}
+
+.grade8{background-color:#16a085;}
+.navbar.grade8_border{border-bottom: 4px solid #14937a;}
+
+.center-align h4{color: white; font-weight:bolder; text-transform:uppercase;}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+/* Styles */
+}
+
+/* Smartphones (landscape) ----------- */
+@media only screen 
+and (min-width : 321px) {
+/* Styles */
+}
+
+/* Smartphones (portrait) ----------- */
+@media only screen 
+and (max-width : 320px) {
+/* Styles */
+}
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) {
+/* Styles */
+}
+
+/* iPads (landscape) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+/* Styles */
+}
+
+/* iPads (portrait) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait) {
+/* Styles */
+}
+
+/* Desktops and laptops ----------- */
+@media only screen 
+and (min-width : 1224px) {
+	.classroom-slide {height: 450px;}
+/* Styles */
+}
+
+/* Large screens ----------- */
+@media only screen 
+and (min-width : 1824px) {
+	.classroom-slide {height: 760px;}
+/* Styles */
+}
+
+/* iPhone 4 ----------- */
+@media
+only screen and (-webkit-min-device-pixel-ratio : 1.5),
+only screen and (min-device-pixel-ratio : 1.5) {
+/* Styles */
+}

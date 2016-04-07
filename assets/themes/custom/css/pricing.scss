@@ -1,0 +1,235 @@
+@import url(http://fonts.googleapis.com/css?family=Ubuntu:300,500,700);
+
+/**
+ * Colors 
+ */
+$emw--color-alpha: #ffffff;
+$emw--color-beta: #222;
+$emw--color-gamma: darken(#333, 10%);
+$emw--color-delta: #fff;
+$emw--color-epsilon: #c0392b;
+$emw--color-zeta: darken($emw--color-epsilon, 25%);
+$emw--color-eta: lighten($emw--color-epsilon, 25%);
+$emw--color-theta: #000;
+$emw--color-iota: #27ae60;
+$emw--color-kappa: #f1c40f;
+
+
+
+/**
+ * Units 
+ */
+$emw--unit-alpha: 1em;
+$emw--unit-beta: 1.5em;
+$emw--unit-gamma: 25%;
+$emw--unit-delta: 1.25em;
+$emw--unit-epsilon: .125em;
+$emw--unit-zeta: .325em;
+$emw--unit-eta: 4;
+$emw--unit-theta: 3em;
+$emw--unit-iota: .05em;
+$emw--unit-kappa: 1;
+$emw--unit-lambda: .115s ease-in-out;
+
+
+
+/**
+ * Lists 
+ */
+$emw--list-alpha: $emw--color-beta, $emw--color-gamma;
+$emw--list-beta: $emw--color-iota, darken($emw--color-iota, 15%);
+$emw--list-gamma: $emw--color-kappa, darken($emw--color-kappa, 10%);
+
+
+
+/**
+ * Elements 
+ */
+.emw__element-alpha {
+  position: relative;
+  margin: $emw--unit-alpha * 5 $emw--unit-alpha * 3 $emw--unit-alpha * 5 $emw--unit-alpha;
+  
+  @include breakpoint(medium) {
+     margin: $emw--unit-epsilon $emw--unit-zeta $emw--unit-alpha $emw--unit-zeta;
+  }
+  
+  // price chart
+  > div {
+    position: absolute;
+    top: 20%;
+    left: 0;
+    padding: $emw--unit-alpha 0 $emw--unit-alpha * 2 0;
+    color: $emw--color-delta;
+    text-align: center;
+    border-radius: $emw--unit-epsilon;
+    border-top: $emw--unit-zeta solid transparent;
+    border-bottom: $emw--unit-zeta / 2 solid rgba(0, 0, 0, .7);
+    box-shadow: 
+      inset 0 0 $emw--unit-epsilon rgba($emw--color-theta, .5),
+      0 0 $emw--unit-delta * 2 $emw--unit-iota / 4 rgba($emw--color-theta, .5)
+    ;
+    
+    @include transform(scale($emw--unit-kappa * 1, $emw--unit-kappa * 1));
+    @include bg(to bottom, top, $emw--list-alpha);
+    @include breakpoint(medium) {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 33.33%;
+      margin: $emw--unit-alpha 0;
+      @include transform(scale(1, 1));
+    }
+    @include breakpoint(small) {
+      width: 100%;
+    }
+    
+    // Add a position for every child-nth(n)
+    @for $i from 2 through $emw--unit-eta {
+      &:nth-child(#{$i}) {
+          left: (100% / $emw--unit-eta) * ($i - 1);
+          
+          @include breakpoint(medium) {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 33.33%;
+            margin: $emw--unit-alpha 0;
+            @include transform(scale(1, 1));
+          }
+          
+          @include breakpoint(small) {
+            width: 100%;
+          }
+          
+        @if $i == 1 {
+          @include transform(scale($emw--unit-kappa * 1, $emw--unit-kappa * 1));
+        } @else if $i == 2 {
+            h2 {
+              font-weight: 500;
+            }
+            @include transform(scale($emw--unit-kappa * 1.15, $emw--unit-kappa * 1.15));
+        } @else if $i == 3 {
+            z-index: 1337;
+            font-size: $emw--unit-delta;
+            padding-bottom: 0;
+            border-top: $emw--unit-zeta solid rgba($emw--color-iota, .8);
+            border-bottom: $emw--unit-zeta solid rgba($emw--color-iota, .8);
+            text-shadow: ($emw--unit-epsilon / 1.6) ($emw--unit-epsilon / 1.6) 0 #666;
+                    
+            @include breakpoint(medium) {
+              width: 100%;
+              float: left;
+            }
+            
+            h2 {
+              font-weight: 700;
+              
+              &:before,
+              &:after {
+                 content: '\2605';
+                 margin: 0 $emw--unit-epsilon;
+                  
+                 @include breakpoint(medium) {
+                   content: '\2605\2605\2605';
+                 }
+                  
+                 @include breakpoint(small) {
+                   content: '\2605';
+                 }
+              } 
+            }
+            
+            button {              ;
+              background: $emw--color-iota;
+              width: 100%;
+              padding-top: $emw--unit-alpha;
+              padding-bottom: $emw--unit-alpha;
+              font-weight: 700;
+              
+              @include bg(to top, bottom, $emw--list-beta);
+            }
+            
+            .emw__element-beta {
+              font-size: $emw--unit-theta * 1.15;
+              margin: $emw--unit-epsilon $emw--unit-zeta $emw--unit-epsilon 0;
+            }
+          
+          @include breakpoint(large) {
+            @include transform(scale($emw--unit-kappa * 1.3, $emw--unit-kappa * 1.3) translate(0, -3%));
+          }
+        } @else if $i == 4 {
+            border-top: $emw--unit-zeta solid rgba($emw--color-kappa, .8);
+            
+            h2 {
+              font-weight: 700;
+            }
+            
+            button {              ;
+              @include bg(to top, bottom, $emw--list-gamma);
+            }
+            
+            @include transform(scale($emw--unit-kappa * 1.15, $emw--unit-kappa * 1.15));
+        }
+      }
+    }
+  }
+  
+  h2 {
+    font-weight: 300;
+    font-size: $emw--unit-beta * 1.5;
+    margin: 0;
+  }
+  
+  hr {
+    border: none;
+    margin: $emw--unit-zeta * 2 10%;
+    background: darken($emw--color-delta, 80%);
+    border-top: ($emw--unit-iota + $emw--unit-iota / 3) solid darken($emw--color-delta, 100%);
+    height: $emw--unit-iota;
+  }
+  
+  button {    
+    border: none;
+    font: 500 $emw--unit-delta "Ubuntu", sans-serif;
+    width: 80%;
+    letter-spacing: $emw--unit-epsilon / 2;
+    color: $emw--color-delta;
+    background: $emw--color-epsilon;
+    padding: $emw--unit-epsilon * 4 $emw--unit-epsilon * 12;
+    box-shadow: 
+      inset 0 0 $emw--unit-epsilon * 2 0 rgba($emw--color-delta, .2),
+      0 0 $emw--unit-epsilon * 3 0 rgba($emw--color-beta, .45)
+    ;
+    
+    @include transition(
+      box-shadow $emw--unit-lambda,
+      transform $emw--unit-lambda
+    );
+    
+    &:hover {
+      box-shadow: 
+        inset 0 0 $emw--unit-epsilon * 2 0 rgba($emw--color-delta, .3),
+        0 0 $emw--unit-epsilon * 3 0 rgba($emw--color-beta, .45)
+      ;
+    }
+      
+    &:active {
+       @include transform(scale(.9, .9));
+    }
+  }
+}
+
+.emw__element-beta {
+  position: relative;
+  font-size: $emw--unit-theta;
+  margin: $emw--unit-zeta * 2 $emw--unit-zeta * 2 $emw--unit-zeta * 2 0;
+  
+  &:after {
+    position: absolute;
+    bottom: 0;
+    content: 'per month';
+    margin: 0 0 .75em .35em;
+    font-size: $emw--unit-epsilon * 2;
+    width: .005em;
+  }
+}
