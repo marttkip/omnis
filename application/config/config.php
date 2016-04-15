@@ -374,3 +374,6 @@ $config['modules_locations'] = array(
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */
+$config['appID'] = '687392621328638';
+$config['appSecret'] = '687392621328638';
+$config['mandrill_key']    = 'yjFJ6K54RN6qZillqrUXXg';

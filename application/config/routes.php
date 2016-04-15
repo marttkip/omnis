@@ -189,4 +189,7 @@ $route['sign-in'] = 'site/sign_in';
 $route['sign-up'] = 'site/account';
 
 
-$route['create-new-account'] = 'site/add_new_account';
+$route['new-account'] = 'site/add_new_account';
+$route['login-account'] = 'site/sign_in';
+$route['my-account'] = 'site/my_account';
+$route['log-out'] = 'site/logout_admin';

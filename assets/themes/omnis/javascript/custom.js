@@ -104,35 +104,60 @@ function submit_account(){
     dataType: 'text',
     success:function(data){
     //obj.innerHTML = XMLHttpRequestObject.responseText;
-    	alert(data);
+    	// alert(data);
+    	// if(data.status == "success")
+     //    {
+           
+     //    }
+     //    else
+     //    {
+     //        $("#message").html('<div class="alert alert-danger">'+data.message+'</div>');
+     //    }
+      alert(data.message);
     },
     error: function(xhr, status, error) {
     //alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
-    alert(error);
+  
+     $("#message").html('<div class="alert alert-danger">Something went wrong. Please try again</div>');
+      alert('Something went wrong. Please try again');
     }
 
     });
 	return false;
 }
 function submit_login(){
+	          
 
 	var config_url = document.getElementById("config_url").value;
-    var data_url = config_url+"login-account";
+    var data_url = config_url+"site/login_account";
    
-     var email_address = $('#email_address').val();
-     var password = $('#password').val();
-     
+    var admin_email_address = $('#admin_email').val();
+    var password = $('#admin_password').val();
+    
     $.ajax({
     type:'POST',
     url: data_url,
-    data:{email_address: email_address,password: password},
-    dataType: 'text',
+    data:{admin_email: admin_email_address,admin_password: password},
+    dataType: 'json',
     success:function(data){
+    	// alert(data.status);
+    	if(data.status == 'success')
+    	{
+    		window.location.href = config_url+"my-account";
+    	}
+    	else
+    	{
+    		alert(data.message);
+    	}
     //obj.innerHTML = XMLHttpRequestObject.responseText;
+
+    // cache:false,
+    // contentType: false,
+    // processData: false,
     },
     error: function(xhr, status, error) {
     //alert("XMLHttpRequest=" + xhr.responseText + "\ntextStatus=" + status + "\nerrorThrown=" + error);
-    alert(error);
+    	alert(error);
     }
 
     });

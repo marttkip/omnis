@@ -134,7 +134,7 @@ body {
 	color: white;
 }
 
-p a
+/*p a
 {
 	background-color: #f43c43;
     color: #fff;
@@ -142,7 +142,7 @@ p a
     transform: none;
     transform-style: none;
     font
-}
+}*/
 #login-welcome
 {
 	overflow: hidden;
@@ -163,4 +163,61 @@ p a
 	height: 200px;
 	text-align: left;
 	font-family: montserrat, arial, verdana;
+}
+.setting-btn
+{
+	color: white !important;
+}
+
+.article
+{
+	width: 100%;
+	height: auto;
+	background-color: #f4f4f4;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 5px;
+	box-shadow: 6px 2px 6px #888888;
+}
+.row .col-md-10
+{
+	width: 80%;
+}
+.row .col-md-2
+{
+	width: 20%;
+}
+.row .col-md-12 .title-item{float:left;width: 130px; font-weight:bold; text-align:right; padding-right: 20px;}
+
+.column-left{ float: left; width: 53%; }
+.column-right{ float: right; width: 13%; }
+.column-center{ display: inline-block; width: 23%; }
+.column-right button
+{
+	margin-top:0px;
+}
+
+#contact-login {
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+    width: 1100px;
+    margin: 0 auto;
+    padding: 73px 0 40px;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.alert-danger {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+}
+.alert-success {
+    background-color: #d6e9c6;
+    border-color: #d6e9c6;
+    color: #a94442;
 }

@@ -43,6 +43,38 @@ class Site_model extends CI_Model
 		
 		return $query;
 	}
+
+	public function validate_user()
+	{
+			//select the user by email from the database
+		$this->db->select('*');
+		$this->db->where(array('admin_email' => $this->input->post('admin_email'), 'admin_status' => 1, 'admin_password' => md5($this->input->post('admin_password'))));
+		$query = $this->db->get('admins');
+		
+		//if users exists
+		if ($query->num_rows() > 0)
+		{
+			$result = $query->result();
+			//create user's login session
+			$newdata = array(
+                   'login_status'     => TRUE,
+                   'admin_first_name'     => $result[0]->admin_first_name,
+                   'admin_email'     => $result[0]->admin_email,
+                   'admin_id'  => $result[0]->admin_id
+               );
+
+			$this->session->set_userdata($newdata);
+			
+			//update user's last login date time
+			return TRUE;
+		}
+		
+		//if user doesn't exist
+		else
+		{
+			return FALSE;
+		}
+	}
 	
 	public function get_gallery_departments()
 	{
@@ -398,33 +430,60 @@ class Site_model extends CI_Model
 	*/
 	public function add_company()
 	{
+		$company_name = $this->input->post('company_name');
+		$company_name = str_replace(' ','',$company_name);
+		$company_name = preg_replace('/[^A-Za-z\-]/', '', $company_name);
 		
+		$folder_name = strtolower($company_name);
 
-		$data = array(
-					'company_name'=>ucwords(strtolower($this->input->post('company_name'))),
-					'company_postal_address'=>$this->input->post('postal_address'),
-					'company_postal_code'=>$this->input->post('postal_code'),
-					'company_city'=>$this->input->post('city'),
-					'company_phone_number'=>$this->input->post('phone_number'),
-					'company_email'=>$this->input->post('company_email'),
-					'company_status'=>1
-				);
-
-		if($this->db->insert('companies', $data))
-		{
-			$company_id = $this->db->insert_id();
+		if (!file_exists('/home/omniscok/public_html/'.$folder_name)) {
+	    	
+	    
+		// check if company exist
+			$table = "service, department";
+			$where = "department.department_status = 1 AND service.department_id = department.department_id";
 			
-			return $company_id;
-		}
-		else{
-			return FALSE;
+			$this->db->select('*');
+			$this->db->where('concat_company = "'.$folder_name.'"');
+			$query = $this->db->get('companies');
+			if($query->num_rows() > 0)
+			{
+				return FALSE;
+			}
+			else
+			{
+				$url = base_url().''.$folder_name;
+				$data = array(
+						'company_name'=>ucwords(strtolower($this->input->post('company_name'))),
+						'company_postal_address'=>$this->input->post('postal_address'),
+						'company_postal_code'=>$this->input->post('postal_code'),
+						'company_city'=>$this->input->post('city'),
+						'company_phone_number'=>$this->input->post('phone_number'),
+						'company_email'=>$this->input->post('company_email'),
+						'concat_company'=>$folder_name,
+						'company_web_url'=>$url,
+						'company_status'=>1
+					);
+
+				if($this->db->insert('companies', $data))
+				{
+					$company_id = $this->db->insert_id();
+					mkdir('/home/omniscok/public_html/'.$folder_name.'', 0777, true);
+					return $company_id;
+				}
+				else{
+					return FALSE;
+				}
+			}
+
+			
 		}
 	}
-	public function perform_company_creation($company_id,$admin_id)
+	public function perform_company_creation($company_admin_id)
 	{
 		// get company data 
 		$table = "company_admin,companies,admins";
-		$where = "companies.company_id = .company_admin.company_id AND admins.admin_id = company_admin.admin_id";
+		$where = "companies.company_id = .company_admin.company_id AND admins.admin_id = company_admin.admin_id AND company_admin.company_admin_id =".$company_admin_id;
 		
 		$this->db->select('*');
 		$this->db->where($where);
@@ -433,142 +492,281 @@ class Site_model extends CI_Model
 
 		if($query->num_rows() > 0)
 		{
-			foreach ($query->result() as $key) {
+			foreach ($query->result() as $items_key) {
 				# code...
-				$company_id = $key->company_id;
-				$company_name = $key->company_name;
-				$admin_first_name = $key->admin_first_name;
-				$admin_other_names = $key->admin_other_names;
-				$company_email = $key->company_email;
-				$company_phone_number = $key->company_phone_number;
-				$admin_email = $key->admin_email;
+				$company_id = $items_key->company_id;
+				$company_name = $items_key->company_name;
+				$admin_first_name = $items_key->admin_first_name;
+				$admin_other_names = $items_key->admin_other_names;
+				$company_email = $items_key->company_email;
+				$company_phone_number = $items_key->company_phone_number;
+				$admin_email = $items_key->admin_email;
+				$folder_name = $items_key->concat_company;
 			}
 
 			// start the process
 
 			// get the link to pass
-			$company_array = explode(' ',$company_name);
-			$folder_name = strtolower($company_array[0]);
+			// $company_array = explode(' ',$company_name);
+			// $folder_name = strtolower($company_array[0]);
 
-			$company_user = substr($folder_name,0,7);
+			$company_user = $this->get_random_string($folder_name, 7);
 
 			$zip = new ZipArchive;
-			$res = $zip->open(''.base_url().'inventory.zip');
+			$res = $zip->open('/home/omniscok/public_html/human_resource.zip');
+			// var_dump($res); die();
+
 			if ($res === TRUE) {
-				$zip->extractTo(''.base_url().''.$folder_name);
-				$zip->close();
+								
+					$zip->extractTo('/home/omniscok/public_html/'.$folder_name);
+					$zip->close();
 
-				// change config file
-				$file = ''.base_url().''.$folder_name.'\application/config.php';
-				file_put_contents($file,str_replace('$config["base_url"] = "http://localhost/nefris/";','$config["base_url"] = "'.base_url().''.$folder_name.'/";',file_get_contents($file)));
+					// change config file
+					$file = '/home/omniscok/public_html/'.$folder_name.'/application/config/config.php';
 
-				// change the database connection
-				$database_file = ''.base_url().''.$folder_name.'\application/database.php';
+					file_put_contents($file,str_replace("\$config['base_url'] = 'http://localhost/human_resource/';","\$config['base_url'] = '".base_url()."".$folder_name."/';",file_get_contents($file)));
 
-				file_put_contents(
-					$database_file,
-					str_replace(
-						"\$db['default']['username'] = 'root';",
-						"\$db['default']['username'] = 'omniscok_".$company_user."';",
-						file_get_contents($database_file)
-					)
-				);
-				
-				file_put_contents(
-					$database_file,
-					str_replace(
-						"\$db['default']['password'] = '';",
-						"\$db['default']['password'] = 'r6r5bb!!';",
-						file_get_contents($database_file)
-					)
-				);
-				file_put_contents(
-					$database_file,
-					str_replace(
-						"\$db['default']['database'] = '';",
-						"\$db['default']['database'] = 'omniscok_".$folder_name."';",
-						file_get_contents($database_file)
-					)
-				);
+					file_put_contents($file,str_replace("\$config['encryption_key'] = 'OHCOSHODPKISIIAMMTSBOMNISERP2015';","\$config['encryption_key'] = '".base_url()."".$folder_name."';",file_get_contents($file)));
 
-				// accessing files in cpanel 
-
-				$opts['user'] = 'omniscok';
-				$opts['pass'] = 'N2birBw308';
-				$xmlapi = new xmlapi("omnis.co.ke");   
-				$xmlapi->set_port( 2083 );   
-				$xmlapi->password_auth($opts['user'],$opts['pass']);    
-				$xmlapi->set_debug(0);//output actions in the error log 1 for true and 0 false 
-
-				$cpaneluser=$opts['user'];
-				$databasename= $databasename;
-				$databaseuser= $company_user;
-				$databasepass= 'r6r5bb!!';
-
-				//create database    
-				$createdb = $xmlapi->api1_query($cpaneluser, "Mysql", "adddb", array($databasename));   
-				//create user 
-				$usr = $xmlapi->api1_query($cpaneluser, "Mysql", "adduser", array($databaseuser, $databasepass));   
-				//add user 
-				$addusr = $xmlapi->api1_query($cpaneluser, "Mysql", "adduserdb", array("".$cpaneluser."_".$databasename."", "".$cpaneluser."_".$databaseuser."", 'all'));
-
-
-				$source_db='omniscok_setson';
-				$server='localhost';
-				$user='omniscok_setson';
-				$password='r6r5bb!!';
-
-				$target_db='omniscok_inventory';
-				$db2_server='localhost';
-				$db2_user='omniscok_invento';
-				$db2_password='r6r5bb!!';
-
-				$user_main='omniscok';
-				$password_main ='N2birBw308';
-
-				$db_main = mysql_connect($server,$user_main,$password_main);
-
-				$db1 = mysql_connect($server,$user,$password);
-				mysql_select_db($source_db,$db1);
-
-				// Get names of all tables in source database
-				$result=mysql_query("show tables");
-				while($row=mysql_fetch_array($result)){
-					$name=$row[0];
-					$this_result=mysql_query("show create table $name");
-					$this_row=mysql_fetch_array($this_result);
-					$tables[]=array('name'=>$name,'query'=>$this_row[1]);
-				}
-
-				// Connect target database to create and populate tables
-				$db2 = mysql_connect($db2_server,$db2_user,$db2_password);
-				mysql_select_db($target_db,$db2);
-
-				$total=count($tables);
-				for($i=0;$i < $total;$i++){
-					$name=$tables[$i]['name'];
-					$q=$tables[$i]['query'];
 					
-					$insert_sql = "insert into $target_db.$name select * from $source_db.$name";
-					echo $insert_sql.'<hr>';
-					mysql_query($q,$db2);
 
-					mysql_query($insert_sql,$db_main);
-				}
+					// super user rights
+					
 
+					// change the database connection
+					$database_file = '/home/omniscok/public_html/'.$folder_name.'/application/config/database.php';
+
+					file_put_contents(
+						$database_file,
+						str_replace(
+							"\$db['default']['username'] = 'root';",
+							"\$db['default']['username'] = 'omniscok_".$company_user."';",
+							file_get_contents($database_file)
+						)
+					);
+					
+					file_put_contents(
+						$database_file,
+						str_replace(
+							"\$db['default']['password'] = '';",
+							"\$db['default']['password'] = 'r6r5bb!!';",
+							file_get_contents($database_file)
+						)
+					);
+					file_put_contents(
+						$database_file,
+						str_replace(
+							"\$db['default']['database'] = 'human_resource';",
+							"\$db['default']['database'] = 'omniscok_".$folder_name."';",
+							file_get_contents($database_file)
+						)
+					);
+					
+					// accessing files in cpanel 
+
+					$opts['user'] = 'omniscok';
+					$opts['pass'] = 'N2birBw308';
+
+					$xmlapi = new xmlapi("omnis.co.ke");   
+					$xmlapi->set_port( 2083 );   
+					$xmlapi->password_auth($opts['user'],$opts['pass']);    
+					$xmlapi->set_debug(0);//output actions in the error log 1 for true and 0 false 
+
+					$cpaneluser=$opts['user'];
+					$databasename= $folder_name;
+					$databaseuser= $company_user;
+					$databasepass= 'r6r5bb!!';
+
+					//create database    
+					$createdb = $xmlapi->api1_query($cpaneluser, "Mysql", "adddb", array($databasename));   
+					//create user 
+					$usr = $xmlapi->api1_query($cpaneluser, "Mysql", "adduser", array($databaseuser, $databasepass));   
+					//add user 
+					$addusr = $xmlapi->api1_query($cpaneluser, "Mysql", "adduserdb", array("".$cpaneluser."_".$databasename."", "".$cpaneluser."_".$databaseuser."", 'all'));
+
+
+					$target_db = $cpaneluser.'_'.$folder_name;
+					$source_db = 'omniscok_hrparent';
+
+					// Get names of all tables in source database
+					// Loading second db and running query.
+					$CI = &get_instance();
+					//setting the second parameter to TRUE (Boolean) the function will return the database object.
+					$this->db2 = $CI->load->database('db2', TRUE);
+					$query = $this->db2->query("show tables");
+							
+
+					foreach ($query->result() as $key) {
+						$name=$key->Tables_in_omniscok_hrparent;
+						$sql = "show create table `".$name."`";
+						
+						$this_result= $this->db2->query($sql);
+						foreach ($this_result->result() as  $value) {
+							$item = 'Create Table';
+							
+						}
+						$newstr = str_replace('CREATE TABLE ', 'CREATE TABLE '.$target_db.'.', $value->$item);
+						$tables[]=array('name'=>$name,'query'=>$newstr);
+					}
+
+					$CI = &get_instance();
+					$this->db3 = $CI->load->database('db3', TRUE);
+					$total=count($tables);
+					for($i=0;$i < $total;$i++){
+						$name=$tables[$i]['name'];
+						$q=$tables[$i]['query'];
+						
+						$insert_sql = "insert into $target_db.$name select * from $source_db.$name";
+						
+						$this->db3->query($q);
+						$this->db3->query($insert_sql);
+					}
+					// truncate table branch and also table personnel
+
+					$truncate_branch = 'TRUNCATE TABLE '.$target_db.'.branch';
+					$this->db3->query($truncate_branch);
+
+					$truncate_personnel = 'TRUNCATE TABLE '.$target_db.'.personnel';
+					$this->db3->query($truncate_personnel);
+
+					$truncate_personnel = 'TRUNCATE TABLE '.$target_db.'.personnel_section';
+					$this->db3->query($truncate_personnel);
+
+					//$password = $this->generateRandomString(8);
+					//$company_code = get_random_string($folder_name,4);
+
+					// insert into company
+					
+					$this->db3->query('INSERT INTO '.$target_db.'.branch (branch_email,branch_phone,branch_name,branch_image_name,branch_thumb_name,branch_status,branch_code) VALUES("'.$company_email.'","'.$company_phone_number.'","'.$company_name.'","","",1,"OMN")');
+					// $branch_id = $this->db3->insert_id();
+					
+					$this->db3->query('INSERT INTO '.$target_db.'.personnel (personnel_onames,personnel_fname,personnel_email,personnel_username,personnel_password,personnel_status,branch_id) VALUES("'.$admin_other_names.'","'.$admin_first_name.'","'.$admin_email.'","'.$admin_email.'","'.md5(123456).'",1,1)');
+
+					$this->db3->query('INSERT INTO '.$target_db.'.`personnel_section` ( `personnel_id`, `section_id`, `created_by`, `modified_by`, `created`, `deleted`, `deleted_on`, `deleted_by`) VALUES(1, 14, 0, 0, "'.date('Y-m-d H:i:s').'", 0, NULL, NULL)');
+
+					$this->db3->query('INSERT INTO '.$target_db.'.`personnel_section` ( `personnel_id`, `section_id`, `created_by`, `modified_by`, `created`, `deleted`, `deleted_on`, `deleted_by`) VALUES(1, 19, 1, 1, "'.date('Y-m-d H:i:s').'", 0, NULL, NULL)');
+
+					$this->db3->query('INSERT INTO '.$target_db.'.`personnel_section` ( `personnel_id`, `section_id`, `created_by`, `modified_by`, `created`, `deleted`, `deleted_on`, `deleted_by`) VALUES(1, 127, 1, 1, "'.date('Y-m-d H:i:s').'", 0, NULL, NULL)');
+
+
+
+					// created a username 
+					// $url = base_url().''.$folder_name;
+
+					// $company_items = array('company_web_url' => $url);
+					// $this->db->where('company_id',$company_id);
+					// $this->db->update('companies',$company_items);
+				
+
+					// create a username: 
+					$message = "
+								<p>Welcome ".$admin_first_name." ".$admin_other_names."</p>
+								<p>You company account ".$folder_name." has been created successfull, you may log in to application using the following credentials:</p>
+								<ol>
+									<li>
+										<strong>URL : </strong> ".base_url()."".$folder_name." 
+									</li>
+									<li>
+										<strong>Username : </strong> ".$folder_name."
+									</li>
+									<li>
+										<strong>Password : </strong> 123456
+									</li>
+								</ol>
+								<p>For any questions please feel free to drop an email to info@omnis.co.ke </p>
+								";
+
+					// send an email to the admin with a username and password for the other system
+
+					$this->send_account_message($message,$admin_email);
+					return TRUE;
+				
 			} else {
-			  echo 'doh!';
+				$message = "<p>Hello ".$admin_first_name." ".$admin_other_names."</p>
+							<p>Sorry something went wrong. Please try again to create your account</p>
+							<p>For any questions please feel free to drop an email to info@omnis.co.ke </p>
+							";
+					// send an email to the admin with a username and password for the other system
+				$this->send_account_message($message,$admin_email);
+			  return FALSE;
 			}
 
 
 		}
 		else
 		{
+			$message = "<p>Hello ".$admin_first_name." ".$admin_other_names."</p>
+							<p>Sorry something went wrong. Please try again to create your account</p>
+							<p>For any questions please feel free to drop an email to info@omnis.co.ke </p>
+							";
+					// send an email to the admin with a username and password for the other system
+			$this->send_account_message($message,$admin_email);
 			return FALSE;
 		}
 
 		// get admin_data 
 		
+	}
+
+	public function send_account_message($message,$admin_email)
+	{
+		//send mail to SUMC
+			$subject = 'Omnis Account Opening';
+			$message = '
+			<p>'.$message.'</p>			
+			';
+			$sender_email = 'info@omnis.co.ke';
+			$shopping = "";
+			$from = 'Omnis Limited';
+			
+			$button = '';
+			$response = $this->email_model->send_mandrill_mail($admin_email, "Hi ", $subject, $message, $sender_email, $shopping, $from, $button, $cc = NULL);	
+			return $response;		
+			
+	}
+	function generateRandomString($length) {
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $charactersLength = strlen($characters);
+	    $randomString = '';
+	    for ($i = 0; $i < $length; $i++) {
+	        $randomString .= $characters[rand(0, $charactersLength - 1)];
+	    }
+	    return $randomString;
+	}
+	function get_random_string($valid_chars, $length)
+	{
+	    // start with an empty random string
+	    $random_string = "";
+
+	    // count the number of chars in the valid chars string so we know how many choices we have
+	    $num_valid_chars = strlen($valid_chars);
+
+	    // repeat the steps until we've created a string of the right length
+	    for ($i = 0; $i < $length; $i++)
+	    {
+	        // pick a random number from 1 up to the number of valid chars
+	        $random_pick = mt_rand(1, $num_valid_chars);
+
+	        // take the random character out of the string of valid chars
+	        // subtract 1 from $random_pick because strings are indexed starting at 0, and we started picking at 1
+	        $random_char = $valid_chars[$random_pick-1];
+
+	        // add the randomly-chosen char onto the end of our string so far
+	        $random_string .= $random_char;
+	    }
+
+	    // return our finished random string
+	    return $random_string;
+	}
+	public function get_my_accounts()
+	{
+		$where='admins.admin_id = company_admin.admin_id AND company_admin.company_id = companies.company_id AND company_admin.admin_id ='.$this->session->userdata('admin_id');
+		$table = 'admins,companies,company_admin';
+		$this->db->select('*');
+		$this->db->where($where);
+		$this->db->order_by('company_name');
+		$query = $this->db->get($table);
+		return $query;
 	}
 }
 ?>

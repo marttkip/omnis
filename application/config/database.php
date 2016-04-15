@@ -65,5 +65,44 @@ $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
 
+
+// source db
+
+$db['db2']['hostname'] = 'localhost';
+$db['db2']['username'] = 'omniscok_hrparen';
+$db['db2']['password'] = 'r6r5bb!!';
+$db['db2']['database'] = 'omniscok_hrparent';
+$db['db2']['dbdriver'] = 'mysql';
+$db['db2']['dbprefix'] = '';
+$db['db2']['pconnect'] = TRUE;
+$db['db2']['db_debug'] = TRUE;
+$db['db2']['cache_on'] = FALSE;
+$db['db2']['cachedir'] = '';
+$db['db2']['char_set'] = 'utf8';
+$db['db2']['dbcollat'] = 'utf8_general_ci';
+$db['db2']['swap_pre'] = '';
+$db['db2']['autoinit'] = TRUE;
+$db['db2']['stricton'] = FALSE;
+
+// main db
+
+$db['db3']['hostname'] = 'localhost';
+$db['db3']['username'] = 'omniscok';
+$db['db3']['password'] = 'N2birBw308';
+$db['db3']['database'] = '';
+$db['db3']['dbdriver'] = 'mysql';
+$db['db3']['dbprefix'] = '';
+$db['db3']['pconnect'] = TRUE;
+$db['db3']['db_debug'] = TRUE;
+$db['db3']['cache_on'] = FALSE;
+$db['db3']['cachedir'] = '';
+$db['db3']['char_set'] = 'utf8';
+$db['db3']['dbcollat'] = 'utf8_general_ci';
+$db['db3']['swap_pre'] = '';
+$db['db3']['autoinit'] = TRUE;
+$db['db3']['stricton'] = FALSE;
+
+
+
 /* End of file database.php */
 /* Location: ./application/config/database.php */

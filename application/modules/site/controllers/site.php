@@ -17,6 +17,9 @@ class Site extends CI_Controller
 		$this->load->model('admin/gallery_model');
 		$this->load->model('admin/users_model');
 		$this->load->model('site/departments_model');
+
+		$this->load->library('Mandrill', $this->config->item('mandrill_key'));
+		$this->load->model('site/email_model');
 		
 		$this->slideshow_location = base_url().'assets/slideshow/';
 		$this->service_location = base_url().'assets/service/';
@@ -133,15 +136,97 @@ class Site extends CI_Controller
 	{
 		$data['contacts'] = $this->site_model->get_contacts();
 		
+		//form validation rules
+		$this->form_validation->set_rules('first_name', 'First Name', 'required|xss_clean');
+		$this->form_validation->set_rules('other_names', 'Other Names', 'required|xss_clean');
+		$this->form_validation->set_rules('email_address', 'Admin Email', 'is_unique[admins.admin_email]|valid_email|xss_clean');
+		$this->form_validation->set_rules('password', 'Password', 'required|xss_clean');
+		$this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|xss_clean');
+	
+		
+		//if form has been submitted
+		if ($this->form_validation->run() == FALSE)
+		{
+			$validation_errors = validation_errors();
+
+			$this->session->unset_userdata('error_message');
+			$this->session->set_userdata('error_message', $validation_errors);		
+		}
+		
+		else
+		{
+			// check if the two passwords  match
+
+			if($this->input->post('password') == $this->input->post('confirm_password'))
+			{
+				$visit_data = array('admin_first_name'=>$this->input->post('first_name'),
+										'admin_other_names'=>$this->input->post('other_names'),
+										'admin_email'=>$this->input->post('email_address'),
+										'admin_password'=>md5($this->input->post('password'))
+										);
+				if($this->db->insert('admins', $visit_data))
+				{
+					$this->session->unset_userdata('success_message');
+					$this->session->set_userdata('success_message', 'Your account has been successfully created. Please login to get started with OMNIS <a href="'.site_url().'sign-in">Sign in</a>');		
+				}
+				else
+				{
+					$this->session->unset_userdata('error_message');
+					$this->session->set_userdata('error_message', 'Something went wrong. Please try again');	
+				}
+				
+			}
+			else
+			{
+				$this->session->unset_userdata('error_message');
+				$this->session->set_userdata('error_message', 'Password do not match');	
+			}
+		}
+
 		$v_data['title'] = 'Account';
 		$v_data['class'] = '';
 		$v_data['content'] = $this->load->view("account", $data, TRUE);
 		
 		$this->load->view("includes/templates/general", $v_data);
 	}
+	public function create_new_company()
+	{
+
+	}
 	public function sign_in()
 	{
 		$data['contacts'] = $this->site_model->get_contacts();
+
+		//form validation rules
+		$this->form_validation->set_rules('admin_email', 'Admin Email', 'required|xss_clean|exists[admins.admin_email]');
+		$this->form_validation->set_rules('admin_password', 'Password', 'required|xss_clean');
+		
+		//if form has been submitted
+		if ($this->form_validation->run())
+		{
+			// var_dump("sdakjsdha"); die();
+			//check if user has valid login credentials
+			if($this->site_model->validate_user())
+			{				
+				
+				$this->session->set_userdata('success','You have successfully logged in');
+
+				redirect('my-account');
+			}
+			
+			else
+			{				
+				$this->session->set_userdata('login_error','The email or password provided is incorrect. Please try again');
+				
+			}
+		}
+		
+		else
+		{
+			$validation_errors = validation_errors();
+			$this->session->set_userdata('login_error',$validation_errors);
+		}
+		
 		
 		$v_data['title'] = 'Sign In';
 		$v_data['class'] = '';
@@ -253,59 +338,127 @@ class Site extends CI_Controller
 	{
 		//form validation rules
 		$this->form_validation->set_rules('company_name', 'Company Name', 'required|xss_clean');
-		$this->form_validation->set_rules('company_email', 'user Email', 'valid_email|xss_clean');
+		$this->form_validation->set_rules('company_email', 'Company Email', 'is_unique[companies.company_email]|valid_email|xss_clean');
 		$this->form_validation->set_rules('phone_number', 'Company Phone', 'required|xss_clean');
-
-		$this->form_validation->set_rules('first_name', 'First Name', 'required|xss_clean');
-		$this->form_validation->set_rules('other_names', 'Other Names', 'required|xss_clean');
-		$this->form_validation->set_rules('email_address', 'user Email', 'valid_email|xss_clean');
-		$this->form_validation->set_rules('password', 'Password', 'required|xss_clean');
-		$this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|xss_clean');
 
 	
 		
 		//if form has been submitted
 		if ($this->form_validation->run() == FALSE)
 		{
-			// redirect('blog/view-single/'.$web_name);
+			$validation_errors  = validation_errors();
+
+			$this->session->unset_userdata('error_message');
+			$this->session->set_userdata('error_message', $validation_errors);
 		}
 		
 		else
 		{
+			// check if the two passwords  match
 			$company_id = $this->site_model->add_company();
 			if($company_id > 0)
-			{
-				// start creating something else
-				$visit_data = array('admin_first_name'=>$this->input->post('first_name'),
-									'admin_other_names'=>$this->input->post('other_names'),
-									'admin_email'=>$this->input->post('email_address'),
-									'admin_password'=>md5($this->input->post('password'))
-									);
-				if($this->db->insert('admins', $visit_data))
+			{				
+				$admin_id = $this->db->insert_id();
+				// insert into the company admin
+				$company_admin = array('company_id'=>$company_id,
+									   'admin_id'=>$this->session->userdata('admin_id')									
+									  );
+				if($this->db->insert('company_admin', $company_admin))
 				{
-					$admin_id = $this->db->insert_id();
-					// insert into the company admin
-					$company_admin = array('company_id'=>$company_id,
-										   'admin_id'=>$admin_id									
-										  );
-					if($this->db->insert('company_admin', $company_admin))
-					{
-						$company_admin_id = $this->db->insert_id();
-						// success now create the folder you were talking about
-						$this->site_model->perform_company_creation($company_admin_id);
-					}
-
-				}
-				$this->edit_supplier($supplier_id);
-				$this->session->set_userdata('success_message', 'Comment added successfully. Pending approval by admin');
+					$company_admin_id = $this->db->insert_id();
+					// success now create the folder you were talking about
 				
+					$this->site_model->perform_company_creation($company_admin_id);
+
+					$this->session->unset_userdata('success_message');
+					$this->session->set_userdata('success_message', 'Please check your email for more information about your account creation');
+
+					redirect('my-account');	
+				}
+				else
+				{
+					$this->session->unset_userdata('error_message');
+					$this->session->set_userdata('error_message', 'Something went wrong. Please try again');
+				}
 			}
 			
 			else
 			{
-				$this->session->set_userdata('error_message', 'Could not add comment. Please try again');
-				// redirect('blog/view-single/'.$web_name);
+				$this->session->unset_userdata('error_message');
+					$this->session->set_userdata('error_message', 'Something went wrong. Please try again');
+			}			
+		}
+		$data['contacts'] = $this->site_model->get_contacts();
+
+		$v_data['title'] = 'Account';
+		$v_data['class'] = '';
+		$v_data['content'] = $this->load->view("create_new_account", $data, TRUE);
+		
+		$this->load->view("includes/templates/general", $v_data);
+		
+	}
+	public function perform_company_creation()
+	{
+		$this->site_model->perform_company_creation(1);
+	}
+
+	public function login_account()
+	{
+		//form validation rules
+		$this->form_validation->set_rules('admin_email', 'Email', 'required|xss_clean|exists[admins.admin_email]');
+		$this->form_validation->set_rules('admin_password', 'Password', 'required|xss_clean');
+		
+		//if form has been submitted
+		if ($this->form_validation->run())
+		{
+			var_dump("sdakjsdha"); die();
+			//check if user has valid login credentials
+			if($this->site_model->validate_user())
+			{				
+				
+				$this->session->set_userdata('success','You have successfully logged in');
+
+				redirect('my-account');
+			}
+			
+			else
+			{				
+				$this->session->set_userdata('login_error','The email or password provided is incorrect. Please try again');
+				
 			}
 		}
+		
+		else
+		{
+			$this->session->set_userdata('login_error','The email or password provided is incorrect. Please try again');
+		}
+		
+
 	}
+
+	public function my_account()
+	{
+
+		$data['contacts'] = $this->site_model->get_contacts();
+		$data['my_accounts'] = $this->site_model->get_my_accounts();
+		$v_data['title'] = 'Account';
+		$v_data['class'] = '';
+		$v_data['content'] = $this->load->view("user_account", $data, TRUE);
+		
+		$this->load->view("includes/templates/general", $v_data);
+
+	}
+	public function logout_admin()
+	{
+		$this->session->sess_destroy();
+		redirect('sign-in');
+	}
+
+	public function send_email()
+	{
+		$response = $this->site_model->send_account_message('Hello Martin','marttkip@gmail.com');
+
+		var_dump($response);
+	}
+
 }

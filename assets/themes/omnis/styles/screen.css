@@ -771,7 +771,7 @@ summary {
     margin-left: auto;
     margin-right: auto;
 }
-#contact > .map {
+/*#contact > .map {
     display: block;
     overflow: hidden;
     position: absolute;
@@ -785,7 +785,7 @@ summary {
     background: #fff;
     opacity: .8;
     filter: alpha(opacity 80);
-}
+}*/
 #contact .heading-a {
     margin-bottom: 28px;
 }

@@ -3,31 +3,39 @@
 </article>
 <section id="content" class="a">
 
-	<!-- multistep form -->
-	<form id="msform">
+	<article id="contact">
 
-	  <fieldset>
+        <form action="<?php echo site_url();?>login-account" method="post">
+        	<h5>LOGIN</h5>
+        	<?php 
+        	$login_error = $this->session->userdata('login_error');
+			$this->session->unset_userdata('login_error');
+			
+			if(!empty($login_error))
+			{
+				echo '<div class="alert alert-danger">'.$login_error.'</div>';
+			}
+        	?>
+        	
+            <fieldset>
+                <p>
+                    <label for="ca">Email address</label>
+                    <input type="email" id="ca" name="admin_email" autocomplete="off" required>
+                </p>
+                <p>
+                    <label for="cb">Password</label>
+                    <input type="password" id="cb" name="admin_password" autocomplete="off" required>
+                </p>
+                <p><button type="submit">login</button></p>
+            </fieldset>
+             <div class="pull-left">
+	        	<a href="">Forgot password ?</a>
+	        </div>
+	         <div class="pull-right">
+	        	<a href="<?php echo site_url();?>sign-up">Dont have an account sign in ?</a>
+	        </div>
 
-	    <h2 class="fs-title">Login</h2>
-	    <h3 class="fs-subtitle"></h3>
-	    <div class="row">
-	    	<input type="email" id="email_address" name="email_address" placeholder="Email Address" required />
-		    <input type="password" id="password" name="password" placeholder="Password" required />
-		    <div class="pull-right">
-				<input type="submit" name="login" id="login" class="next action-button" value="Login" />
-			</div>
-	    </div>
-	    
-	  
-	    <div class="row"  style="margin-top:90px; ">
-			<div class="pull-left">
-				<a href="#">Forgot Password ?</a>
-			</div>
-			<div class="pull-right">
-				<a href="<?php echo base_url();?>sign-up"> Dont have an account. Sign up?</a>
-			</div>
-		</div>
-		
-	  </fieldset>
-	</form>
+        </form>
+       
+    </article>
 </section>
